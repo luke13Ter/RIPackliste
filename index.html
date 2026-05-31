@@ -90,17 +90,42 @@
   /* DELETE BUTTON */
   .delete-btn {
     width: 28px; height: 28px; border-radius: 5px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-muted);
-    font-size: 14px; cursor: pointer;
+    border: 1px solid rgba(255,60,60,0.35);
+    background: rgba(255,60,60,0.08);
+    color: var(--accent2);
+    font-size: 13px; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
     transition: all 0.15s;
-    opacity: 0;
   }
-  .item:hover .delete-btn { opacity: 1; }
-  .delete-btn:hover { background: rgba(255,60,60,0.15); border-color: var(--accent2); color: var(--accent2); }
+  .delete-btn:active { background: rgba(255,60,60,0.25); transform: scale(0.93); }
+
+  /* RESTORE BUTTON */
+  .restore-btn {
+    width: 28px; height: 28px; border-radius: 5px;
+    border: 1px solid rgba(0,212,255,0.3);
+    background: rgba(0,212,255,0.08);
+    color: var(--p1-color);
+    font-size: 13px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .restore-btn:active { background: rgba(0,212,255,0.2); transform: scale(0.93); }
+
+  /* TRASH SECTION */
+  .trash-section { margin-top: 8px; }
+  .trash-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; cursor: pointer;
+    color: var(--text-muted); font-size: 12px;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .trash-header:hover { color: var(--text); }
+  .trash-items { display: none; }
+  .trash-items.open { display: block; }
+  .item.deleted-item { opacity: 0.5; }
+  .item.deleted-item .item-label { text-decoration: line-through; }
 
   /* ADD ITEM ROW */
   .add-item-row { display: flex; align-items: center; gap: 8px; padding: 6px 12px; margin-top: 4px; }
@@ -486,8 +511,49 @@ function renderAll() {
   ['p1','p2','shared'].forEach(type => {
     document.getElementById(`view-${type}`).innerHTML =
       data.map(cat => renderCategory(cat, type)).join('') +
-      renderCustomSection(type);
+      renderCustomSection(type) +
+      renderTrashSection(type);
   });
+}
+
+function renderTrashSection(filterType) {
+  // Deleted base items relevant to this type
+  const deletedBaseItems = baseData.flatMap(c => c.items)
+    .filter(i => i.type === filterType && state.deleted.includes(i.id));
+  // Deleted custom items for this type (we don't track these — once gone, gone)
+  if (deletedBaseItems.length === 0) return '';
+
+  const sectionId = `trash-items-${filterType}`;
+  const itemsHtml = deletedBaseItems.map(item => `
+    <div class="item deleted-item">
+      <div class="item-main" style="cursor:default">
+        <div class="checkbox" style="opacity:0.3"></div>
+        <span class="item-label">${item.label}</span>
+      </div>
+      <button class="restore-btn" onclick="restoreItem('${item.id}')" title="Wiederherstellen">↩</button>
+    </div>
+  `).join('');
+
+  return `
+    <div class="trash-section">
+      <div class="trash-header" onclick="toggleTrash('${sectionId}')">
+        🗑 Gelöscht (${deletedBaseItems.length}) <span style="margin-left:4px;font-size:10px">▾ Wiederherstellen</span>
+      </div>
+      <div class="trash-items" id="${sectionId}">
+        ${itemsHtml}
+      </div>
+    </div>
+  `;
+}
+
+function toggleTrash(sectionId) {
+  const el = document.getElementById(sectionId);
+  if (el) el.classList.toggle('open');
+}
+
+function restoreItem(id) {
+  state.deleted = state.deleted.filter(d => d !== id);
+  save(); renderAll(); updateStats();
 }
 
 function updateStats() {
