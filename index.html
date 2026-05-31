@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Packliste – Rock im Park 🎸</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #161616;
+    --surface2: #1e1e1e;
+    --border: #2a2a2a;
+    --accent: #e8ff00;
+    --accent2: #ff3c3c;
+    --p1-color: #00d4ff;
+    --p2-color: #ff8c42;
+    --shared-color: #b57bff;
+    --text: #f0f0f0;
+    --text-muted: #666;
+    --checked: #1a1a1a;
+    --checked-text: #3a3a3a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 2px solid var(--accent);
+    padding: 20px 20px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 40px rgba(232,255,0,0.06);
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .title-block h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(26px, 5vw, 44px);
+    letter-spacing: 3px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .title-block p {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  .progress-block { text-align: right; }
+
+  .progress-numbers {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .progress-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .progress-bar-wrap {
+    width: 100%;
+    height: 3px;
+    background: var(--border);
+    margin-top: 12px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+    width: 0%;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 12px 8px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    background: none;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .tab.active { color: var(--text); }
+  .tab:hover:not(.active) { color: #aaa; }
+
+  .tab-p1.active { border-bottom-color: var(--p1-color); }
+  .tab-p2.active { border-bottom-color: var(--p2-color); }
+  .tab-shared.active { border-bottom-color: var(--shared-color); }
+
+  .tab .dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  .tab-p1 .dot { background: var(--p1-color); }
+  .tab-p2 .dot { background: var(--p2-color); }
+  .tab-shared .dot { background: var(--shared-color); }
+
+  /* NAME EDITOR */
+  .name-editor {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 4px;
+  }
+
+  .name-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed var(--border);
+    color: inherit;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    width: 80px;
+    text-align: center;
+    outline: none;
+    padding: 1px 2px;
+    transition: border-color 0.2s;
+  }
+
+  .name-input:focus {
+    border-bottom-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .name-input::placeholder { color: var(--text-muted); }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: flex;
+    gap: 0;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat {
+    flex: 1;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    border-right: 1px solid var(--border);
+  }
+  .stat:last-child { border-right: none; }
+
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 9px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+  }
+
+  /* MAIN */
+  main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 20px 14px;
+  }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* CATEGORY */
+  .category { margin-bottom: 26px; }
+
+  .category-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding-bottom: 7px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .category-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: var(--text);
+  }
+
+  .category-count {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* ITEM */
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 7px;
+    margin-bottom: 3px;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.2s;
+    border: 1px solid transparent;
+    user-select: none;
+  }
+
+  .item:hover { background: var(--surface2); border-color: var(--border); }
+
+  .item.checked { opacity: 0.38; background: var(--checked); }
+  .item.checked .item-label { text-decoration: line-through; color: var(--checked-text); }
+
+  .checkbox {
+    width: 20px; height: 20px;
+    border-radius: 5px;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .item.checked .checkbox { border-color: var(--accent); background: var(--accent); }
+
+  .checkbox-tick {
+    opacity: 0;
+    font-size: 11px;
+    color: #000;
+    font-weight: 800;
+    transition: opacity 0.15s;
+  }
+
+  .item.checked .checkbox-tick { opacity: 1; }
+
+  .item-label { flex: 1; font-size: 14px; transition: color 0.2s; }
+
+  /* RESET */
+  .reset-btn {
+    display: block;
+    margin: 28px auto 0;
+    padding: 10px 28px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .reset-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="title-block">
+      <h1>Rock im Park</h1>
+      <p>Packliste 2025</p>
+    </div>
+    <div class="progress-block">
+      <div class="progress-numbers" id="progress-numbers" style="color: var(--accent)">0/0</div>
+      <div class="progress-label">Eingepackt</div>
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="progress-bar" style="background: var(--accent)"></div>
+  </div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat">
+    <span class="stat-value" id="stat-p1" style="color:var(--p1-color)">0/0</span>
+    <span class="stat-label" id="stat-label-p1">Ich</span>
+  </div>
+  <div class="stat">
+    <span class="stat-value" id="stat-p2" style="color:var(--p2-color)">0/0</span>
+    <span class="stat-label" id="stat-label-p2">Sie</span>
+  </div>
+  <div class="stat">
+    <span class="stat-value" id="stat-shared" style="color:var(--shared-color)">0/0</span>
+    <span class="stat-label">Gemeinsam</span>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab tab-p1 active" id="tab-p1" onclick="switchTab('p1')">
+    <span class="dot"></span><span class="name-display" id="name-display-p1">Ich</span>
+  </button>
+  <button class="tab tab-p2" id="tab-p2" onclick="switchTab('p2')">
+    <span class="dot"></span><span class="name-display" id="name-display-p2">Sie</span>
+  </button>
+  <button class="tab tab-shared" onclick="switchTab('shared')">
+    <span class="dot"></span>Gemeinsam
+  </button>
+</div>
+
+<!-- Name edit bar, shown when on p1 or p2 tab -->
+<div id="name-edit-bar" style="background:var(--surface2);border-bottom:1px solid var(--border);padding:8px 20px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted);">
+  <span>✏️ Name:</span>
+  <input class="name-input" id="name-input-p1" placeholder="Dein Name" maxlength="16" style="display:none;color:var(--p1-color);border-bottom-color:rgba(0,212,255,0.3)">
+  <input class="name-input" id="name-input-p2" placeholder="Ihr Name" maxlength="16" style="display:none;color:var(--p2-color);border-bottom-color:rgba(255,140,66,0.3)">
+</div>
+
+<main>
+  <div class="view active" id="view-p1"></div>
+  <div class="view" id="view-p2"></div>
+  <div class="view" id="view-shared"></div>
+  <button class="reset-btn" onclick="resetCurrent()">↺ Aktuellen Tab zurücksetzen</button>
+</main>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+// type: "p1" = ich, "p2" = freundin, "shared" = gemeinsam
+const data = [
+  {
+    category: "Dokumente & Wertsachen",
+    items: [
+      { id: "tickets", label: "Tickets", type: "shared" },
+      { id: "bauchtasche", label: "Bauchtasche", type: "p2" },
+    ]
+  },
+  {
+    category: "Camping & Schlafen",
+    items: [
+      { id: "zelt", label: "Zelt (Heringe)", type: "shared" },
+
+      { id: "isomatte_p1", label: "Isomatte", type: "p1" },
+      { id: "isomatte_p2", label: "Isomatte", type: "p2" },
+      { id: "schlafsack_p1", label: "Schlafsack", type: "p1" },
+      { id: "schlafsack_p2", label: "Schlafsack", type: "p2" },
+      { id: "campingstuehle", label: "Campingstühle ×2", type: "shared" },
+      { id: "kissen_p1", label: "Kissen", type: "p1" },
+      { id: "kissen_p2", label: "Kissen", type: "p2" },
+      { id: "muellsaecke", label: "Müllsäcke", type: "shared" },
+      { id: "kuhltasche", label: "Kühltasche", type: "shared" },
+      { id: "pavillon", label: "Pavillon", type: "shared" },
+    ]
+  },
+  {
+    category: "Kleidung",
+    items: [
+      { id: "socken_p1", label: "Socken ×5", type: "p1" },
+      { id: "socken_p2", label: "Socken ×5", type: "p2" },
+      { id: "unterhosen_p1", label: "Unterhosen ×5", type: "p1" },
+      { id: "unterhosen_p2", label: "Unterhosen ×5", type: "p2" },
+      { id: "pulli_p1", label: "Pulli ×1", type: "p1" },
+      { id: "pulli_p2", label: "Pulli ×1", type: "p2" },
+      { id: "tshirt_p1", label: "T-Shirt ×3", type: "p1" },
+      { id: "tshirt_p2", label: "T-Shirt ×3", type: "p2" },
+      { id: "kurzehose_p1", label: "Kurze Hose ×2", type: "p1" },
+      { id: "kurzehose_p2", label: "Kurze Hose ×2", type: "p2" },
+      { id: "jogginghose_p1", label: "Jogginghose", type: "p1" },
+      { id: "jogginghose_p2", label: "Jogginghose", type: "p2" },
+      { id: "gummistiefel_p1", label: "Gummistiefel / Wanderschuhe", type: "p1" },
+      { id: "gummistiefel_p2", label: "Gummistiefel / Wanderschuhe", type: "p2" },
+      { id: "schlappen_p1", label: "Schlappen", type: "p1" },
+      { id: "schlappen_p2", label: "Schlappen", type: "p2" },
+      { id: "schuhe_p1", label: "Schuhe ×1 / Poncho", type: "p1" },
+      { id: "schuhe_p2", label: "Schuhe ×1 / Poncho", type: "p2" },
+      { id: "regenjacke_p1", label: "Regenjacke ×1", type: "p1" },
+      { id: "regenjacke_p2", label: "Regenjacke ×1", type: "p2" },
+      { id: "cap_p1", label: "Cap", type: "p1" },
+      { id: "cap_p2", label: "Cap", type: "p2" },
+      { id: "sonnenbrille_p1", label: "Sonnenbrille", type: "p1" },
+      { id: "sonnenbrille_p2", label: "Sonnenbrille", type: "p2" },
+      { id: "langehose_p1", label: "Lange Hose", type: "p1" },
+      { id: "langehose_p2", label: "Lange Hose", type: "p2" },
+      { id: "schlafsachen_p1", label: "Schlafsachen", type: "p1" },
+      { id: "schlafsachen_p2", label: "Schlafsachen", type: "p2" },
+    ]
+  },
+  {
+    category: "Küche, Essen & Getränke",
+    items: [
+      { id: "gaskocher", label: "Gaskocher", type: "shared" },
+      { id: "pfanne", label: "Pfanne / Topf", type: "shared" },
+      { id: "besteck", label: "Besteck", type: "shared" },
+      { id: "doseoeffner", label: "Dosenöffner", type: "shared" },
+      { id: "trichter", label: "Trichter", type: "shared" },
+      { id: "trinkbeutel", label: "Faltbarer Trinkbeutel", type: "shared" },
+      { id: "wasserkanister", label: "Wasserkanister", type: "shared" },
+
+      { id: "muellbeutel", label: "Müllbeutel", type: "shared" },
+      { id: "kuechentucher", label: "Küchentücher", type: "shared" },
+
+      { id: "energydrinks", label: "Energy Drinks (Fahrt/Nacht)", type: "shared" },
+      { id: "verpflegung", label: "Verpflegung", type: "shared" },
+      { id: "bier", label: "Bier", type: "shared" },
+      { id: "radler", label: "Radler", type: "shared" },
+
+    ]
+  },
+  {
+    category: "Hygiene & Gesundheit",
+    items: [
+      { id: "klopapier", label: "Klopapier", type: "shared" },
+      { id: "taschentuecher", label: "Taschentücher", type: "shared" },
+      { id: "feuchtuecher", label: "Feuchttücher", type: "shared" },
+      { id: "duschgel_p1", label: "Duschgel", type: "p1" },
+      { id: "duschgel_p2", label: "Duschgel", type: "p2" },
+      { id: "deo_p1", label: "Deo", type: "p1" },
+      { id: "deo_p2", label: "Deo", type: "p2" },
+      { id: "desinfekt", label: "Desinfektionsmittel", type: "shared" },
+      { id: "zahnbuerste_p1", label: "Zahnbürste + Zahnpasta", type: "p1" },
+      { id: "zahnbuerste_p2", label: "Zahnbürste + Zahnpasta", type: "p2" },
+      { id: "handtuecher", label: "Handtücher", type: "shared" },
+      { id: "pflaster", label: "Pflaster", type: "shared" },
+      { id: "medikamente", label: "Medikamente", type: "shared" },
+      { id: "sonnencreme_p1", label: "Sonnencreme", type: "p1" },
+      { id: "sonnencreme_p2", label: "Sonnencreme", type: "p2" },
+      { id: "autan", label: "Autan", type: "shared" },
+      { id: "ohrstoepsel_p1", label: "Ohrstöpsel", type: "p1" },
+      { id: "ohrstoepsel_p2", label: "Ohrstöpsel", type: "p2" },
+      { id: "damenhygiene", label: "Damenhygieneartikel", type: "p2" },
+    ]
+  },
+  {
+    category: "Technik & Licht",
+    items: [
+      { id: "powerbank", label: "Powerbank ×2", type: "shared" },
+      { id: "ladekabel_p1", label: "Ladekabel", type: "p1" },
+      { id: "ladekabel_p2", label: "Ladekabel", type: "p2" },
+      { id: "taschenlampe", label: "Taschenlampe", type: "shared" },
+
+
+      { id: "musikbox", label: "Musikbox", type: "shared" },
+      { id: "walkie", label: "Walkie Talkies", type: "shared" },
+      { id: "kopfhoerer_p1", label: "Kopfhörer", type: "p1" },
+      { id: "kopfhoerer_p2", label: "Kopfhörer", type: "p2" },
+    ]
+  },
+  {
+    category: "Werkzeug & Nützliches",
+    items: [
+      { id: "panzertape", label: "Panzertape", type: "shared" },
+
+
+      { id: "taschenmesser", label: "Taschenmesser", type: "shared" },
+      { id: "lappen", label: "Lappen (Dreck)", type: "shared" },
+      { id: "akkuschrauber", label: "Parkside Akkuschrauber", type: "shared" },
+    ]
+  },
+  {
+    category: "Freizeit & Sonstiges",
+    items: [
+
+      { id: "vape", label: "Vape", type: "shared" },
+    ]
+  }
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+const STORAGE_KEY = "rip2025_v2";
+let state = { checked: [], names: { p1: "", p2: "" } };
+let currentTab = "p1";
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) state = { ...state, ...JSON.parse(raw) };
+  } catch(e) {}
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function isChecked(id) { return state.checked.includes(id); }
+
+function toggle(id) {
+  if (isChecked(id)) state.checked = state.checked.filter(x => x !== id);
+  else state.checked.push(id);
+  save();
+  renderAll();
+  updateStats();
+}
+
+function resetCurrent() {
+  const label = currentTab === 'p1' ? (state.names.p1 || 'Ich') : currentTab === 'p2' ? (state.names.p2 || 'Sie') : 'Gemeinsam';
+  if (!confirm(`Tab "${label}" zurücksetzen?`)) return;
+  const tabItems = data.flatMap(c => c.items).filter(i => i.type === currentTab).map(i => i.id);
+  state.checked = state.checked.filter(id => !tabItems.includes(id));
+  save();
+  renderAll();
+  updateStats();
+}
+
+// ── NAMES ─────────────────────────────────────────────────────────────────────
+function initNames() {
+  const inp1 = document.getElementById('name-input-p1');
+  const inp2 = document.getElementById('name-input-p2');
+  inp1.value = state.names.p1;
+  inp2.value = state.names.p2;
+
+  inp1.addEventListener('input', () => {
+    state.names.p1 = inp1.value.trim();
+    save();
+    updateNameDisplays();
+  });
+  inp2.addEventListener('input', () => {
+    state.names.p2 = inp2.value.trim();
+    save();
+    updateNameDisplays();
+  });
+}
+
+function updateNameDisplays() {
+  document.getElementById('name-display-p1').textContent = state.names.p1 || 'Ich';
+  document.getElementById('name-display-p2').textContent = state.names.p2 || 'Sie';
+  document.getElementById('stat-label-p1').textContent = state.names.p1 || 'Ich';
+  document.getElementById('stat-label-p2').textContent = state.names.p2 || 'Sie';
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function renderCategory(cat, filterType) {
+  const items = cat.items.filter(i => i.type === filterType);
+  if (items.length === 0) return "";
+  const checkedCount = items.filter(i => isChecked(i.id)).length;
+
+  return `
+    <div class="category">
+      <div class="category-header">
+        <span class="category-title">${cat.category}</span>
+        <span class="category-count">${checkedCount}/${items.length}</span>
+      </div>
+      ${items.map(item => `
+        <div class="item ${isChecked(item.id) ? 'checked' : ''}" onclick="toggle('${item.id}')">
+          <div class="checkbox"><span class="checkbox-tick">✓</span></div>
+          <span class="item-label">${item.label}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderAll() {
+  ['p1','p2','shared'].forEach(type => {
+    document.getElementById(`view-${type}`).innerHTML =
+      data.map(cat => renderCategory(cat, type)).join('');
+  });
+}
+
+function updateStats() {
+  const allItems = data.flatMap(c => c.items);
+  const total = allItems.length;
+  const totalChecked = allItems.filter(i => isChecked(i.id)).length;
+
+  ['p1','p2','shared'].forEach(type => {
+    const items = allItems.filter(i => i.type === type);
+    const c = items.filter(i => isChecked(i.id)).length;
+    document.getElementById(`stat-${type}`).textContent = `${c}/${items.length}`;
+  });
+
+  document.getElementById('progress-numbers').textContent = `${totalChecked}/${total}`;
+  const pct = total ? (totalChecked / total) * 100 : 0;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+const tabColors = { p1: 'var(--p1-color)', p2: 'var(--p2-color)', shared: 'var(--shared-color)' };
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(`tab-${tab}`) && document.getElementById(`tab-${tab}`).classList.add('active');
+  document.querySelector(`.tab-${tab}`) && document.querySelector(`.tab-${tab}`).classList.add('active');
+  document.getElementById(`view-${tab}`).classList.add('active');
+
+  // progress bar color
+  document.getElementById('progress-bar').style.background = tabColors[tab];
+  document.getElementById('progress-numbers').style.color = tabColors[tab];
+
+  // name edit bar
+  const bar = document.getElementById('name-edit-bar');
+  const inp1 = document.getElementById('name-input-p1');
+  const inp2 = document.getElementById('name-input-p2');
+  if (tab === 'p1') {
+    bar.style.display = 'flex';
+    inp1.style.display = 'inline-block';
+    inp2.style.display = 'none';
+  } else if (tab === 'p2') {
+    bar.style.display = 'flex';
+    inp1.style.display = 'none';
+    inp2.style.display = 'inline-block';
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+load();
+initNames();
+updateNameDisplays();
+renderAll();
+updateStats();
+switchTab('p1');
+</script>
+</body>
+</html>
